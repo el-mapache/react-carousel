@@ -1,0 +1,144 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 80px;
+}
+
+.App-header {
+  background-color: #222;
+  height: 150px;
+  padding: 20px;
+  color: white;
+}
+
+.App-intro {
+  font-size: large;
+}
+
+@keyframes App-logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  background-color: #333;
+  background-image: url(../public/big.jpg);
+  background-repeat: no-repeat;
+  overflow: hidden;
+  background-size: cover;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0,0,0,.8);
+  z-index: -1;
+}
+
+#root {
+  height: inherit;
+}
+
+.entity-carousel {
+  overflow: hidden;
+  width: 350px;
+}
+
+.entity-carousel, .entity-carousel span {
+  display: flex;
+}
+
+.container {
+  align-items: center;
+  display: flex;
+  height: inherit;
+  justify-content: center;
+  padding: 2em 2em;
+}
+
+.cell {
+  align-items: center;
+  display: flex;
+  justify-content: space-around;
+  height: 350px;
+  width: 350px;
+}
+
+.cell.aubergine {
+  background-color: #aa00b4;
+}
+
+.cell.orange {
+  background-color: #e79734;
+}
+
+.cell.snow-pea {
+  background-color: #116a33;
+}
+
+.cell-content {
+  align-self: center;
+  color: #fff;
+}
+
+/* animation classes */
+.slide-left-appear {
+}
+
+.slide-left-appear.slide-left-appear-active {
+  /*transform: translateX(-350px);*/
+  transition: all 500ms ease-in;
+}
+
+.slide-left-leave {
+  /*transform: translateX(-350px);*/
+}
+
+.slide-left-leave.slide-left-leave-active {
+  opacity: .01;
+  /*transform: translateX(-350px);*/
+  transition: all 300ms ease-in;
+}
+
+/*.slide-left-appear {
+  transform: translateX(100%);
+  opacity: 1;
+}
+
+.slide-left-appear.slide-left-appear-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: all 500ms ease-in;
+}
+
+.slide-left-leave {
+  opacity: 0.01;
+  transform: translateX(-100%);
+}
+
+.slide-left-leave.slide-left-leave-active {
+  opacity: 0.01;
+  transition: all 300ms ease-in;
+}*/
+
+
+.wrapper {
+  transition: all 2s ease-in;
+}
