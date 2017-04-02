@@ -4,21 +4,6 @@ import ReactTransitionGroup from 'react-addons-transition-group';
 import './App.css';
 
 const ContentCell = React.createClass({
-  componentDidMount() {
-    const node = ReactDOM.findDOMNode(this);
-    //node.style.transform = 'translateX(-350px)'
-    node.addEventListener('transitionend', this.onTransition);
-  },
-
-  componentWillUnmount() {
-    // const node = ReactDOM.findDOMNode(this);
-    // node.classList.add('display-none')
-  },
-
-  onTransition() {
-    console.log('transition over?', this.props.content)
-  },
-
   render() {
     const { props: { classes, content } } = this
 
@@ -39,10 +24,8 @@ class EntityCarousel extends React.Component {
     // have to store current active and last active
     this.state = {
       active: this.props.active || 0,
+      direction: null,
       isTransitioning: false,
-      isTransistionStart: false,
-      isTranistioning: false,
-      isTransitionEnd: false,
       animateKey: null // set a unique key to flag component for animation
     };
 
@@ -50,16 +33,33 @@ class EntityCarousel extends React.Component {
     this.moveRight = this.moveRight.bind(this);
     this.handleTransitionEnd = this.handleTransitionEnd.bind(this);
   }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    const { state } = this;
+    if (!nextState.animateKey && !state.animateKey) {
+      return false;
+    }
+
+    return true;
+  }
+
   // we will need to know what direction the carousel is moving so we know which
   // component(s) toflag for mounting
   displayChildren() {
     const { state } = this;
 
     if (state.isTransitioning) {
-      return [
-        this.props.children[state.active - 1],
-        this.props.children[state.active]
-      ];
+      if (state.direction === 'left') {
+        return [
+          this.props.children[state.active - 1],
+          this.props.children[state.active]
+        ];
+      } else if (state.direction === 'right') {
+        return [
+          this.props.children[state.active],
+          this.props.children[state.active + 1]
+        ];
+      }
     }
 
     return this.props.children[state.active];
@@ -79,38 +79,40 @@ class EntityCarousel extends React.Component {
 
   getNextActive(increment) {
     return this.state.active + increment;
-
-
-    //return nextActive > childCount ? childCount : nextActive;
   }
 
   moveLeft() {
-    if (this.atLastChild()) {
+    if (this.atLastChild() || this.state.isTransitioning) {
       return;
     }
 
     this.setState({
       isTransitioning: true,
       animateKey: this.generateAnimationKey(),
-      active: this.getNextActive(1)
+      active: this.getNextActive(1),
+      lastActive: this.state.active,
+      direction: 'left'
     });
   }
 
   moveRight() {
-    if (this.atFirstChild()) {
+    if (this.atFirstChild() || this.state.isTransitioning) {
       return;
     }
 
     this.setState({
       isTransitioning: true,
       animateKey: this.generateAnimationKey(),
-      active: this.getNextActive(-1)
+      active: this.getNextActive(-1),
+      lastActive: this.state.active,
+      direction: 'right'
     });
   }
 
   handleTransitionEnd() {
     this.setState({
       isTransitioning: false,
+      direction: null,
       animateKey: null
     });
   }
@@ -120,16 +122,22 @@ class EntityCarousel extends React.Component {
       <div>
         <div className='entity-carousel'>
           <ReactTransitionGroup>
+            { this.state.isTransitioning ?
             <Wrapper
-              style={{display: 'flex', width: `${3 * 350}px`}} key={this.state.animateKey}
-              onTransitionEnd={this.handleTransitionEnd}
+              animateKey={ this.state.animateKey }
+              key={ this.state.animateKey }
+              onTransitionEnd={ this.handleTransitionEnd }
+              direction={ this.state.direction }
+              animating={ this.state.isTransitioning}
+              active={this.state.active}
+              lastActive={this.state.lastActive}
             >
-              {this.displayChildren()}
-            </Wrapper>
+              { this.displayChildren() }
+            </Wrapper> : this.displayChildren()}
           </ReactTransitionGroup>
         </div>
-        <button onClick={this.moveLeft}>left</button>
-        <button onClick={this.moveRight}>right</button>
+        <button onClick={ this.moveLeft }>left</button>
+        <button onClick={ this.moveRight }>right</button>
       </div>
     );
   }
@@ -139,11 +147,21 @@ EntityCarousel.propTypes = {
   active: React.PropTypes.number
 };
 
-const Wrapper = React.createClass({
-  componentWillEnter(enterCallback) {
-    var from     = 0;
-    var to       = -350;
-    var duration = 1000; // 500ms
+let Wrapper = React.createClass({
+  shouldComponentUpdate(nextProps) {
+    if (!nextProps.animating && (nextProps.active === this.props.active)) {
+      return false;
+    }
+
+    return true;
+  },
+
+  animate(cb) {
+    const { direction } = this.props;
+
+    var from     = direction === 'right' ? -350 : 0;
+    var to       = direction === 'left' ? -350 : 0;
+    var duration = 850; // 500ms
     var node  = ReactDOM.findDOMNode(this);
 
     var start = new Date().getTime();
@@ -153,7 +171,7 @@ const Wrapper = React.createClass({
       node.style.transform = `translateX(${x}px)`;
       if (time >= duration) {
         clearInterval(timer);
-        enterCallback();
+        cb();
       }
     }, 1000 / 60);
 
@@ -169,14 +187,31 @@ const Wrapper = React.createClass({
     }
   },
 
-  componentWillLeave(leaveCallback) {
+  componentWillEnter(enterCallback) {
+    this.animate(enterCallback);
+  },
+
+  componentDidEnter() {
     this.props.onTransitionEnd();
+  },
+
+  componentWillLeave(leaveCallback) {
     leaveCallback();
   },
 
+  componentDidLeave() {
+  },
+
   render() {
+    const { direction } = this.props;
+    const x = direction && direction === 'right' ? -350 : 0;
+    const style = {
+      width: `${this.props.children.length * 350}px`,
+      transform: `translateX(${x}px)`
+    };
+
     return (
-      <div style={this.props.style}>
+      <div style={style}>
         { this.props.children }
       </div>
     );
