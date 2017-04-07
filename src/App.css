@@ -101,3 +101,19 @@ body::after {
 .wrapper {
   display: flex;
 }
+
+.btn-group {
+  margin-top: 10px;
+}
+
+.btn {
+  background: #fafafa;
+  border: none;
+  border-radius: 10px 10px;
+  color: #1a1a1a;
+  cursor: pointer;
+  font-size: 1.25em;
+  margin-right: 10px;
+  outline: none;
+  padding: 6px;
+}

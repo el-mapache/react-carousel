@@ -8,7 +8,7 @@ class App extends Component {
     return (
       <div className="container">
         <EntityCarousel entityWidth={350}>
-          <ContentCell classes='aubergine' content="purple"/>
+          <ContentCell classes='aubergine' content="aubergine"/>
           <ContentCell classes='orange' content="orange"/>
           <ContentCell classes='snow-pea' content="snowpea"/>
         </EntityCarousel>

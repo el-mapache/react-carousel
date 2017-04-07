@@ -26,7 +26,7 @@ class EntityCarousel extends React.Component {
   shouldComponentUpdate(nextProps, nextState) {
     const { state } = this;
 
-    if (!nextState.animateKey && !state.animateKey ||
+    if ((!nextState.animateKey && !state.animateKey) ||
         nextState.activeIndex === state.activeIndex) {
       return false;
     }
@@ -127,14 +127,16 @@ class EntityCarousel extends React.Component {
               animating={ state.isTransitioning}
               active={ state.activeIndex }
               entityWidth={this.props.entityWidth}
-              duration={850}
+              duration={500}
             >
               { this.displayChildren() }
             </CarouselSlider>
           </ReactTransitionGroup>
         </div>
-        <button onClick={ this.moveLeft }>left</button>
-        <button onClick={ this.moveRight }>right</button>
+        <div className='btn-group'>
+          <button className='btn' onClick={ this.moveLeft }>left</button>
+          <button className='btn' onClick={ this.moveRight }>right</button>
+        </div>
       </div>
     );
   }
