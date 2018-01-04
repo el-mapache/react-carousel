@@ -7,7 +7,7 @@ class App extends Component {
   render() {
     return (
       <div className="container">
-        <EntityCarousel entityWidth={350}>
+        <EntityCarousel entitySize={350}>
           <ContentCell classes='aubergine' content="aubergine"/>
           <ContentCell classes='orange' content="orange"/>
           <ContentCell classes='snow-pea' content="snowpea"/>

@@ -1,11 +1,28 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import ReactTransitionGroup from 'react-addons-transition-group';
 import CarouselSlider from './carousel-slider';
 
 const DIRECTION = {
-  RIGHT: 'right',
-  LEFT: 'left'
+  NEXT: 'next',
+  PREVIOUS: 'previous'
 };
+
+const layouts = {
+  VERTICAL: 'vertical',
+  HORIZONTAL: 'horizontal'
+};
+
+const propTypes = {
+  activeIndex: PropTypes.number,
+  entitySize: PropTypes.number,
+  layout: PropTypes.oneOf([
+    layouts.VERTICAL,
+    layouts.HORIZONTAL
+  ]).isRequired,
+};
+
+const isVertical = direction => direction === layouts.VERTICAL;
 
 class EntityCarousel extends React.Component {
   constructor(props) {
@@ -18,8 +35,8 @@ class EntityCarousel extends React.Component {
       animateKey: null // set a unique key to flag component for animation
     };
 
-    this.moveLeft = this.moveLeft.bind(this);
-    this.moveRight = this.moveRight.bind(this);
+    this.previous = this.previous.bind(this);
+    this.next = this.next.bind(this);
     this.handleTransitionEnd = this.handleTransitionEnd.bind(this);
   }
 
@@ -34,21 +51,35 @@ class EntityCarousel extends React.Component {
     return true;
   }
 
+  prepareProps() {
+    const { layout } = this.props;
+
+    return {
+      previousText: isVertical(layout) ? 'up' : 'left',
+      nextText: isVertical(layout) ? 'down' : 'right',
+      translationFn: isVertical(layout) ? 'translateY' : 'translateX',
+      sliderBounds: isVertical(layout) ? 'height' : 'width'
+    };
+  }
+
   displayChildren() {
     const { state: {
       activeIndex, direction, isTransitioning
     }, props: { children } } = this;
 
     if (isTransitioning) {
-      if (direction === DIRECTION.LEFT) {
+      if (direction === DIRECTION.NEXT) {
         return [
-          children[this.clampIndex(activeIndex - 1)],
-          children[activeIndex]
+          children[this.clampIndex(activeIndex + 1)],
+          children[activeIndex],
+
         ];
       } else {
+        console.log('activeindex + 1', activeIndex + 1, children[this.clampIndex(activeIndex + 1)].props);
+        console.log('activeindex - 1', activeIndex - 1, children[this.clampIndex(activeIndex - 1)].props);
+        console.log('activeindex', activeIndex, children[this.clampIndex(activeIndex)].props);
         return [
-          children[activeIndex],
-          children[this.clampIndex(activeIndex + 1)]
+          children[this.clampIndex(activeIndex)],
         ];
       }
     }
@@ -79,20 +110,7 @@ class EntityCarousel extends React.Component {
     return this.clampIndex(this.state.activeIndex + increment);
   }
 
-  moveLeft() {
-    if (this.state.isTransitioning) {
-      return;
-    }
-
-    this.setState({
-      isTransitioning: true,
-      animateKey: this.generateAnimationKey(),
-      activeIndex: this.incrementActiveIndexBy(1),
-      direction: DIRECTION.LEFT
-    });
-  }
-
-  moveRight() {
+  previous() {
     if (this.state.isTransitioning) {
       return;
     }
@@ -101,7 +119,20 @@ class EntityCarousel extends React.Component {
       isTransitioning: true,
       animateKey: this.generateAnimationKey(),
       activeIndex: this.incrementActiveIndexBy(-1),
-      direction: DIRECTION.RIGHT
+      direction: DIRECTION.PREVIOUS
+    });
+  }
+
+  next() {
+    if (this.state.isTransitioning) {
+      return;
+    }
+
+    this.setState({
+      isTransitioning: true,
+      animateKey: this.generateAnimationKey(),
+      activeIndex: this.incrementActiveIndexBy(-1),
+      direction: DIRECTION.NEXT
     });
   }
 
@@ -109,7 +140,7 @@ class EntityCarousel extends React.Component {
     this.setState({
       isTransitioning: false,
       direction: null,
-      animateKey: null
+      animateKey: null,
     });
   }
 
@@ -118,7 +149,7 @@ class EntityCarousel extends React.Component {
 
     return (
       <div>
-        <div className='entity-carousel'>
+        <div className='entity-carousel' style={{width: '1050px'}}>
           <ReactTransitionGroup>
             <CarouselSlider
               key={ state.animateKey }
@@ -126,7 +157,7 @@ class EntityCarousel extends React.Component {
               direction={ state.direction }
               animating={ state.isTransitioning}
               active={ state.activeIndex }
-              entityWidth={this.props.entityWidth}
+              entitySize={this.props.entitySize}
               duration={500}
             >
               { this.displayChildren() }
@@ -134,17 +165,17 @@ class EntityCarousel extends React.Component {
           </ReactTransitionGroup>
         </div>
         <div className='btn-group'>
-          <button className='btn' onClick={ this.moveLeft }>left</button>
-          <button className='btn' onClick={ this.moveRight }>right</button>
+          <button className='btn' onClick={ this.previous }>left</button>
+          <button className='btn' onClick={ this.next }>right</button>
         </div>
       </div>
     );
   }
 }
 
-EntityCarousel.propTypes = {
-  activeIndex: React.PropTypes.number,
-  entityWidth: React.PropTypes.number
+EntityCarousel.propTypes = propTypes;
+EntityCarousel.defaultProps = {
+  layout: 'horizontal',
 };
 
 export default EntityCarousel;
