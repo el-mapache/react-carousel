@@ -126,7 +126,7 @@ class EntityCarousel extends React.Component {
               direction={ state.direction }
               animating={ state.isTransitioning}
               active={ state.activeIndex }
-              entityWidth={this.props.entityWidth}
+              entitySize={this.props.entitySize}
               duration={500}
             >
               { this.displayChildren() }
@@ -134,8 +134,8 @@ class EntityCarousel extends React.Component {
           </ReactTransitionGroup>
         </div>
         <div className='btn-group'>
-          <button className='btn' onClick={ this.moveLeft }>left</button>
-          <button className='btn' onClick={ this.moveRight }>right</button>
+          <button className='btn' onClick={ this.moveRight }>left</button>
+          <button className='btn' onClick={ this.moveLeft }>right</button>
         </div>
       </div>
     );
@@ -144,7 +144,7 @@ class EntityCarousel extends React.Component {
 
 EntityCarousel.propTypes = {
   activeIndex: React.PropTypes.number,
-  entityWidth: React.PropTypes.number
+  entitySize: React.PropTypes.number
 };
 
 export default EntityCarousel;
