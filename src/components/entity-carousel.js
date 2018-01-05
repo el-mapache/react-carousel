@@ -143,6 +143,7 @@ class EntityCarousel extends React.Component {
 
   render() {
     const { state } = this;
+    const preparedProps = this.prepareProps();
 
     return (
       <div>
@@ -156,12 +157,14 @@ class EntityCarousel extends React.Component {
               active={ state.activeIndex }
               entitySize={this.props.entitySize}
               duration={500}
+              translationFn={preparedProps.translationFn}
+              sliderBounds={preparedProps.sliderBounds}
             >
               { this.displayChildren() }
             </CarouselSlider>
           </ReactTransitionGroup>
         </div>
-        <div className='btn-group'>
+        <div className='btn-group' style={{position: 'absolute', top: '0', left: '0'}}>
           <button className='btn' onClick={ this.moveRight }>left</button>
           <button className='btn' onClick={ this.moveLeft }>right</button>
         </div>
@@ -171,5 +174,8 @@ class EntityCarousel extends React.Component {
 }
 
 EntityCarousel.propTypes = propTypes;
+EntityCarousel.defaultProps = {
+  layout: 'vertical',
+};
 
 export default EntityCarousel;

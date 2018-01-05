@@ -18,7 +18,7 @@ const CarouselSlider = React.createClass({
   },
 
   animate(cb) {
-    const { direction, entitySize, duration } = this.props;
+    const { direction, entitySize, duration, translationFn } = this.props;
     const from = direction === 'next' ? -entitySize : 0;
     const to = direction === 'previous' ? -entitySize : 0;
     const node  = ReactDOM.findDOMNode(this);
@@ -27,7 +27,7 @@ const CarouselSlider = React.createClass({
     const timer = setInterval(function() {
       const time = new Date().getTime() - start;
       let x = easeInOutQuart(time, from, to - from, duration);
-      node.style.transform = `translateX(${x}px)`;
+      node.style.transform = `${translationFn}(${x}px)`;
 
       if (time >= duration) {
         clearInterval(timer);
@@ -62,11 +62,19 @@ const CarouselSlider = React.createClass({
   componentDidLeave() {},
 
   render() {
-    const { direction, children, entitySize } = this.props;
-    const x = direction && direction === 'next' ? -entitySize : 0;
+    const {
+      direction,
+      children,
+      entitySize,
+      translationFn,
+      sliderBounds
+    } = this.props;
+
+    const size = direction && direction === 'next' ? -entitySize : 0;
+
     const style = {
-      width: `${this.props.children.length * entitySize}px`,
-      transform: `translateX(${x}px)`
+      // [sliderBounds]: `${this.props.children.length * entitySize}px`,
+      //transform: `${translationFn}(${size}px)`,
     };
 
     return (
