@@ -1,11 +1,28 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import ReactTransitionGroup from 'react-addons-transition-group';
 import CarouselSlider from './carousel-slider';
 
-const DIRECTION = {
-  RIGHT: 'right',
-  LEFT: 'left'
+ const DIRECTION = {
+  NEXT: 'next',
+  PREVIOUS: 'previous',
 };
+
+const layouts = {
+  VERTICAL: 'vertical',
+  HORIZONTAL: 'horizontal',
+};
+
+const propTypes = {
+  activeIndex: React.PropTypes.number,
+  entitySize: React.PropTypes.number,
+  layout: PropTypes.oneOf([
+    layouts.VERTICAL,
+    layouts.HORIZONTAL
+  ]).isRequired,
+};
+
+const isVertical = direction => direction === layouts.VERTICAL;
 
 class EntityCarousel extends React.Component {
   constructor(props) {
@@ -34,13 +51,24 @@ class EntityCarousel extends React.Component {
     return true;
   }
 
+  prepareProps() {
+    const { layout } = this.props;
+
+    return {
+      previousText: isVertical(layout) ? 'up' : 'left',
+      nextText: isVertical(layout) ? 'down' : 'right',
+      translationFn: isVertical(layout) ? 'translateY' : 'translateX',
+      sliderBounds: isVertical(layout) ? 'height' : 'width'
+    };
+  }
+
   displayChildren() {
     const { state: {
       activeIndex, direction, isTransitioning
     }, props: { children } } = this;
 
     if (isTransitioning) {
-      if (direction === DIRECTION.LEFT) {
+      if (direction === DIRECTION.PREVIOUS) {
         return [
           children[this.clampIndex(activeIndex - 1)],
           children[activeIndex]
@@ -88,7 +116,7 @@ class EntityCarousel extends React.Component {
       isTransitioning: true,
       animateKey: this.generateAnimationKey(),
       activeIndex: this.incrementActiveIndexBy(1),
-      direction: DIRECTION.LEFT
+      direction: DIRECTION.PREVIOUS
     });
   }
 
@@ -101,7 +129,7 @@ class EntityCarousel extends React.Component {
       isTransitioning: true,
       animateKey: this.generateAnimationKey(),
       activeIndex: this.incrementActiveIndexBy(-1),
-      direction: DIRECTION.RIGHT
+      direction: DIRECTION.NEXT
     });
   }
 
@@ -142,9 +170,6 @@ class EntityCarousel extends React.Component {
   }
 }
 
-EntityCarousel.propTypes = {
-  activeIndex: React.PropTypes.number,
-  entitySize: React.PropTypes.number
-};
+EntityCarousel.propTypes = propTypes;
 
 export default EntityCarousel;

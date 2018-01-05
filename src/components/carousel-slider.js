@@ -19,8 +19,8 @@ const CarouselSlider = React.createClass({
 
   animate(cb) {
     const { direction, entitySize, duration } = this.props;
-    const from = direction === 'right' ? -entitySize : 0;
-    const to = direction === 'left' ? -entitySize : 0;
+    const from = direction === 'next' ? -entitySize : 0;
+    const to = direction === 'previous' ? -entitySize : 0;
     const node  = ReactDOM.findDOMNode(this);
 
     const start = new Date().getTime();
@@ -63,7 +63,7 @@ const CarouselSlider = React.createClass({
 
   render() {
     const { direction, children, entitySize } = this.props;
-    const x = direction && direction === 'right' ? -entitySize : 0;
+    const x = direction && direction === 'next' ? -entitySize : 0;
     const style = {
       width: `${this.props.children.length * entitySize}px`,
       transform: `translateX(${x}px)`
