@@ -26,7 +26,7 @@ const CarouselSlider = React.createClass({
     const start = new Date().getTime();
     const timer = setInterval(function() {
       const time = new Date().getTime() - start;
-      let x = easeInOutQuart(time, from, to - from, duration);
+      let x = easeInOutQuart(time, -entitySize, entitySize, duration);
       node.style.transform = `${translationFn}(${x}px)`;
 
       if (time >= duration) {
@@ -73,6 +73,10 @@ const CarouselSlider = React.createClass({
     const size = direction && direction === 'next' ? -entitySize : 0;
 
     const style = {
+      width: '350px',
+      height: '700px',
+      overflow: 'hidden',
+      transform: 'translateY(0px)',
       // [sliderBounds]: `${this.props.children.length * entitySize}px`,
       //transform: `${translationFn}(${size}px)`,
     };

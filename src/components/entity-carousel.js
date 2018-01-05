@@ -147,7 +147,7 @@ class EntityCarousel extends React.Component {
 
     return (
       <div>
-        <div className='entity-carousel'>
+        <div className='entity-carousel' style={{height: "350px"}}>
           <ReactTransitionGroup>
             <CarouselSlider
               key={ state.animateKey }
