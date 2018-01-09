@@ -26,23 +26,20 @@ const CarouselSlider = React.createClass({
 
     const from = offset;
     const to = entitySize * this.props.active;
-
-    let distance = Math.abs(from) - to;
+    const distance = Math.abs(from) - to;
 
     const start = new Date().getTime();
     const timer = setInterval(() => {
       const time = new Date().getTime() - start;
       let nextOffset = easeInOutQuart(time, from, distance, duration);
 
-      this.setState({ offset: nextOffset }, () => {
+      this.setState({ offset: nextOffset }, function() {
         if (time >= duration) {
           clearInterval(timer);
           cb();
         }
       });
-
     }, 1000 / 60);
-
 
     // http://easings.net/#easeInOutQuart
     //  t: current time

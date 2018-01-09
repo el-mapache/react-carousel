@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ReactTransitionGroup from 'react-addons-transition-group';
 import CarouselSlider from './carousel-slider';
+import generateId from '../util/random-id';
 
  const DIRECTION = {
   NEXT: 'next',
@@ -20,6 +21,7 @@ const propTypes = {
     layouts.VERTICAL,
     layouts.HORIZONTAL
   ]).isRequired,
+  visible: React.PropTypes.number,
 };
 
 const isVertical = direction => direction === layouts.VERTICAL;
@@ -33,7 +35,7 @@ class EntityCarousel extends React.Component {
       activeIndex: this.props.activeIndex || 0,
       direction: null,
       isTransitioning: false,
-      animateKey: null // set a unique key to flag component for animation
+      animateKey: null, // set a unique key to flag component for animation
     };
 
     this.moveLeft = this.moveLeft.bind(this);
@@ -63,10 +65,6 @@ class EntityCarousel extends React.Component {
     };
   }
 
-  generateAnimationKey() {
-    return Math.random() * 100000000;
-  }
-
   incrementActiveIndexBy(increment) {
     const { children } = this.props;
     const length = children.length - 1;
@@ -88,7 +86,7 @@ class EntityCarousel extends React.Component {
 
     this.setState({
       isTransitioning: true,
-      animateKey: this.generateAnimationKey(),
+      animateKey: generateId(14),
       activeIndex: this.incrementActiveIndexBy(1),
       direction: DIRECTION.PREVIOUS
     });
@@ -101,7 +99,7 @@ class EntityCarousel extends React.Component {
 
     this.setState({
       isTransitioning: true,
-      animateKey: this.generateAnimationKey(),
+      animateKey: generateId(14),
       activeIndex: this.incrementActiveIndexBy(-1),
       direction: DIRECTION.NEXT
     });
@@ -118,11 +116,13 @@ class EntityCarousel extends React.Component {
 
   render() {
     const { state } = this;
+    const { entitySize, visible } = this.props;
     const preparedProps = this.prepareProps();
+    const carouselWidth = entitySize * visible;
 
     return (
       <div>
-        <div className='entity-carousel' style={{height: "350px"}}>
+        <div className="entity-carousel" style={{ height: `${carouselWidth}px` }}>
           <ReactTransitionGroup>
             <CarouselSlider
               lastPosition={this.state.lastPosition}
@@ -151,7 +151,8 @@ class EntityCarousel extends React.Component {
 
 EntityCarousel.propTypes = propTypes;
 EntityCarousel.defaultProps = {
-  layout: 'x',
+  layout: 'y',
+  visible: 1,
 };
 
 export default EntityCarousel;
