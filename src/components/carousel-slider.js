@@ -9,6 +9,9 @@ const propTypes = {
 };
 
 const CarouselSlider = React.createClass({
+  getInitialState() {
+    return { offset: this.props.lastPosition };
+  },
   shouldComponentUpdate(nextProps) {
     if (!nextProps.animating && (nextProps.active === this.props.active)) {
       return false;
@@ -18,21 +21,26 @@ const CarouselSlider = React.createClass({
   },
 
   animate(cb) {
-    const { direction, entitySize, duration, translationFn } = this.props;
-    const from = direction === 'next' ? -entitySize : 0;
-    const to = direction === 'previous' ? -entitySize : 0;
-    const node  = ReactDOM.findDOMNode(this);
+    const { active, entitySize, duration } = this.props;
+    const { offset } = this.state;
+
+    const from = offset;
+    const to = entitySize * this.props.active;
+
+    let distance = Math.abs(from) - to;
 
     const start = new Date().getTime();
-    const timer = setInterval(function() {
+    const timer = setInterval(() => {
       const time = new Date().getTime() - start;
-      let x = easeInOutQuart(time, -entitySize, entitySize, duration);
-      node.style.transform = `${translationFn}(${x}px)`;
+      let nextOffset = easeInOutQuart(time, from, distance, duration);
 
-      if (time >= duration) {
-        clearInterval(timer);
-        cb();
-      }
+      this.setState({ offset: nextOffset }, () => {
+        if (time >= duration) {
+          clearInterval(timer);
+          cb();
+        }
+      });
+
     }, 1000 / 60);
 
 
@@ -52,33 +60,30 @@ const CarouselSlider = React.createClass({
   },
 
   componentDidEnter() {
-    this.props.onTransitionEnd();
+    this.props.onTransitionEnd(this.state.offset);
   },
-
-  componentWillLeave(leaveCallback) {
-    leaveCallback();
-  },
-
-  componentDidLeave() {},
 
   render() {
     const {
-      direction,
       children,
       entitySize,
       translationFn,
-      sliderBounds
+      animating,
+      lastPosition,
+      axis,
     } = this.props;
+    const { offset } = this.state;
+    const len = children.length;
+    const currentOffset = animating ? offset : lastPosition;
 
-    const size = direction && direction === 'next' ? -entitySize : 0;
+    const w = axis === 'x' ? entitySize * len : entitySize;
+    const h = axis === 'y' ? entitySize * len : entitySize;
 
     const style = {
-      width: '350px',
-      height: '700px',
+      width: `${w}px`,
+      height: `${h}px`,
       overflow: 'hidden',
-      transform: 'translateY(0px)',
-      // [sliderBounds]: `${this.props.children.length * entitySize}px`,
-      //transform: `${translationFn}(${size}px)`,
+      transform: `${translationFn}(${currentOffset}px)`,
     };
 
     return (
