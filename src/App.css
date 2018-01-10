@@ -74,9 +74,10 @@ body::after {
 }
 
 .cell {
-  align-items: center;
+  float: left;
+  /* align-items: center;
   display: flex;
-  justify-content: space-around;
+  justify-content: space-around; */
   height: 350px;
   width: 350px;
 }
@@ -99,7 +100,7 @@ body::after {
 }
 
 .wrapper {
-  display: flex;
+  /* display: flex; */
 }
 
 .btn-group {

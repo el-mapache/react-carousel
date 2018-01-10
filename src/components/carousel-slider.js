@@ -5,10 +5,13 @@ const propTypes = {
   animating: React.PropTypes.bool,
   duration: React.PropTypes.number,
   onTransitionEnd: React.PropTypes.func,
-  entityWidth: React.PropTypes.number
+  entitySize: React.PropTypes.number
 };
 
 const CarouselSlider = React.createClass({
+  getInitialState() {
+    return { offset: this.props.lastPosition };
+  },
   shouldComponentUpdate(nextProps) {
     if (!nextProps.animating && (nextProps.active === this.props.active)) {
       return false;
@@ -18,23 +21,25 @@ const CarouselSlider = React.createClass({
   },
 
   animate(cb) {
-    const { direction, entityWidth, duration } = this.props;
-    const from = direction === 'right' ? -entityWidth : 0;
-    const to = direction === 'left' ? -entityWidth : 0;
-    const node  = ReactDOM.findDOMNode(this);
+    const { active, entitySize, duration } = this.props;
+    const { offset } = this.state;
+
+    const from = offset;
+    const to = entitySize * this.props.active;
+    const distance = Math.abs(from) - to;
 
     const start = new Date().getTime();
-    const timer = setInterval(function() {
+    const timer = setInterval(() => {
       const time = new Date().getTime() - start;
-      let x = easeInOutQuart(time, from, to - from, duration);
-      node.style.transform = `translateX(${x}px)`;
+      let nextOffset = easeInOutQuart(time, from, distance, duration);
 
-      if (time >= duration) {
-        clearInterval(timer);
-        cb();
-      }
+      this.setState({ offset: nextOffset }, function() {
+        if (time >= duration) {
+          clearInterval(timer);
+          cb();
+        }
+      });
     }, 1000 / 60);
-
 
     // http://easings.net/#easeInOutQuart
     //  t: current time
@@ -52,21 +57,30 @@ const CarouselSlider = React.createClass({
   },
 
   componentDidEnter() {
-    this.props.onTransitionEnd();
+    this.props.onTransitionEnd(this.state.offset);
   },
-
-  componentWillLeave(leaveCallback) {
-    leaveCallback();
-  },
-
-  componentDidLeave() {},
 
   render() {
-    const { direction, children, entityWidth } = this.props;
-    const x = direction && direction === 'right' ? -entityWidth : 0;
+    const {
+      children,
+      entitySize,
+      translationFn,
+      animating,
+      lastPosition,
+      axis,
+    } = this.props;
+    const { offset } = this.state;
+    const len = children.length;
+    const currentOffset = animating ? offset : lastPosition;
+
+    const w = axis === 'x' ? entitySize * len : entitySize;
+    const h = axis === 'y' ? entitySize * len : entitySize;
+
     const style = {
-      width: `${this.props.children.length * entityWidth}px`,
-      transform: `translateX(${x}px)`
+      width: `${w}px`,
+      height: `${h}px`,
+      overflow: 'hidden',
+      transform: `${translationFn}(${currentOffset}px)`,
     };
 
     return (
